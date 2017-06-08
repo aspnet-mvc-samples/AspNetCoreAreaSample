@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
 
 namespace AspNetCoreAreaSample
 {
@@ -48,6 +50,42 @@ namespace AspNetCoreAreaSample
             }
 
             app.UseStaticFiles();
+
+            // ドメインによるエリア決定
+            app.MapWhen(
+                (HttpContext context) =>
+                {
+                    return context.Request.Host.Value.StartsWith("area1.");
+                },
+                (IApplicationBuilder builder) =>
+                {
+                    builder.UseMvc(routes =>
+                    {
+                        routes.MapRoute(
+                            name: "area1route",
+                            template: "{controller=Home}/{action=Index}/{id?}",
+                            defaults: new { area = "area1" }
+                        );
+                    });
+                }
+            );
+            app.MapWhen(
+                (HttpContext context) =>
+                {
+                    return context.Request.Host.Value.StartsWith("area2.");
+                },
+                (IApplicationBuilder builder) =>
+                {
+                    builder.UseMvc(routes =>
+                    {
+                        routes.MapRoute(
+                            name: "area2route",
+                            template: "{controller=Home}/{action=Index}/{id?}",
+                            defaults: new { area = "area2" }
+                        );
+                    });
+                }
+            );
 
             app.UseMvc(routes =>
             {
