@@ -52,9 +52,8 @@ app.UseMvc(routes =>
 });
 ```
 
-## ドメインによるルート設定
+## ドメインによるエリアルート設定
 ```cs
-// ドメインによるエリア決定
 app.MapWhen(
     (HttpContext context) =>
     {
