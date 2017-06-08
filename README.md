@@ -1,18 +1,4 @@
 # AspNetCoreAreaSample
-## エリア付きルート設定
-```cs
-app.UseMvc(routes =>
-{
-    routes.MapRoute(
-        name: "default",
-        template: "{controller=Home}/{action=Index}/{id?}");
-    // ★ここを追加
-    routes.MapRoute(
-        name: "area-route",
-        template: "{area}/{controller=Home}/{action=Index}/{id?}");
-});
-```
-
 ## エリア属性付きコントローラ
 ```cs
 ....
@@ -50,4 +36,57 @@ Project/
                 Home/
                     Index.cshtml
                     About.cshtml
+```
+
+## エリア付きルート設定
+```cs
+app.UseMvc(routes =>
+{
+    routes.MapRoute(
+        name: "default",
+        template: "{controller=Home}/{action=Index}/{id?}");
+    // ★ここを追加
+    routes.MapRoute(
+        name: "area-route",
+        template: "{area}/{controller=Home}/{action=Index}/{id?}");
+});
+```
+
+## ドメインによるルート設定
+```cs
+// ドメインによるエリア決定
+app.MapWhen(
+    (HttpContext context) =>
+    {
+        return context.Request.Host.Value.StartsWith("area1.");
+    },
+    (IApplicationBuilder builder) =>
+    {
+        builder.UseMvc(routes =>
+        {
+            routes.MapRoute(
+                name: "area1route",
+                template: "{controller=Home}/{action=Index}/{id?}",
+                defaults: new { area = "area1" }
+            );
+        });
+    }
+);
+app.MapWhen(
+    (HttpContext context) =>
+    {
+        return context.Request.Host.Value.StartsWith("area2.");
+    },
+    (IApplicationBuilder builder) =>
+    {
+        builder.UseMvc(routes =>
+        {
+            routes.MapRoute(
+                name: "area2route",
+                template: "{controller=Home}/{action=Index}/{id?}",
+                defaults: new { area = "area2" }
+            );
+        });
+    }
+);
 ```
